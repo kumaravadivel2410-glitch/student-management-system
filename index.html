@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jpcoe | Ai&Ds </title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Project CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Chart.js disabled (graphics removed) -->
+  
+  <!-- SheetJS (Excel) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- jsPDF (PDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ================= AUTH CONTAINER ================= -->
+  <div id="auth-screen" class="login-container">
+    <div class="login-card glass-panel">
+      <div class="brand-header">
+        <i class="fa-solid fa-graduation-cap brand-logo-icon"></i>
+        <h1 class="brand-name" style="font-size: 1.5rem;">J.P. College of Engineering</h1>
+      </div>
+      <p class="subtitle">Artifical intelligence and data science- Student Management Portal</p>
+      
+      <div class="tabs-header">
+        <button id="tab-admin" class="tab-btn active" onclick="switchLoginTab('admin')">Admin</button>
+        <button id="tab-faculty" class="tab-btn" onclick="switchLoginTab('faculty')">Faculty</button>
+        <button id="tab-student" class="tab-btn" onclick="switchLoginTab('student')">Student</button>
+      </div>
+
+      <form id="login-form">
+        <!-- Hidden input to store role selection -->
+        <input type="hidden" id="login-role" value="admin">
+        
+        <div class="form-group">
+          <label for="username">Email Address</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" id="username" class="form-control" placeholder="e.g. adminjpcoe@gmail.edu" required autocomplete="email">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 10px;">
+          <span>Login Securely</span>
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+      </form>
+
+      <!-- Registration Form (hidden by default) -->
+      <form id="register-form" style="display: none;">
+        <div class="form-group">
+          <label for="register-name">Full Name</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-signature"></i>
+            <input type="text" id="register-name" class="form-control" placeholder="e.g. Dr. Robert Jenkins" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="register-email">Email Address</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" id="register-email" class="form-control" placeholder="e.g. robert.j@school.edu" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="register-password">Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="register-password" class="form-control" placeholder="Minimum 6 characters" required minlength="6">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="register-role">Requested Role</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-tag"></i>
+            <select id="register-role" class="filter-select" style="width: 100%; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.05); color: var(--text-main); height: 46px; padding: 0 14px;">
+              <option value="faculty" style="background: var(--bg-card); color: var(--text-main);">Faculty Member</option>
+              <option value="student" style="background: var(--bg-card); color: var(--text-main);">Student Portal</option>
+              <option value="admin" style="background: var(--bg-card); color: var(--text-main);">Administrator</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 10px;">
+          <span>Submit Registration</span>
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </form>
+
+      <div id="auth-toggle-link" style="margin-top: 20px; text-align: center; font-size: 0.85rem;">
+        <a href="javascript:void(0)" id="link-to-register" style="color: var(--primary); font-weight: 600;">Create an account / Register</a>
+        <a href="javascript:void(0)" id="link-to-login" style="color: var(--primary); font-weight: 600; display: none;">Return to Login</a>
+      </div>
+      
+
+    </div>
+  </div>
+
+  <!-- ================= APP CONTAINER ================= -->
+  <div id="app-screen-container" class="app-container" style="display: none;">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fa-solid fa-graduation-cap brand-logo-icon" style="font-size: 1.8rem;"></i>
+        <h2 class="brand-name" style="font-size: 1rem;">J.P. College of Eng.</h2>
+      </div>
+      
+      <ul class="sidebar-menu">
+        <li class="menu-item active" data-target="screen-dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </li>
+        <li class="menu-item" data-target="screen-students">
+          <i class="fa-solid fa-user-graduate"></i>
+          <span>Students</span>
+        </li>
+        <li class="menu-item" data-target="screen-classes">
+          <i class="fa-solid fa-school"></i>
+          <span>Classes</span>
+        </li>
+        <li class="menu-item" data-target="screen-attendance">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Attendance</span>
+        </li>
+        <li class="menu-item" data-target="screen-marks">
+          <i class="fa-solid fa-file-signature"></i>
+          <span>Marks</span>
+        </li>
+        <li class="menu-item" data-target="screen-reports">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>Reports</span>
+        </li>
+        <li class="menu-item" data-target="screen-subjects" id="menu-item-subjects" style="display: none;">
+          <i class="fa-solid fa-book"></i>
+          <span>Subjects</span>
+        </li>
+        <li class="menu-item" data-target="screen-approvals" id="menu-item-approvals" style="display: none;">
+          <i class="fa-solid fa-user-check"></i>
+          <span>Approvals</span>
+        </li>
+        <li class="menu-item" data-target="screen-student-academic" id="menu-item-student-academic" style="display: none;">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>Academic Results</span>
+        </li>
+        <li class="menu-item" data-target="screen-student-homework" id="menu-item-student-homework" style="display: none;">
+          <i class="fa-solid fa-book-open"></i>
+          <span>Assignments</span>
+        </li>
+        <li class="menu-item" data-target="screen-profile">
+          <i class="fa-solid fa-user-gear"></i>
+          <span>Profile / Settings</span>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="avatar" id="nav-avatar">A</div>
+          <div class="user-snippet-details">
+            <h4 id="nav-username">John Doe</h4>
+            <p id="nav-role">Administrator</p>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-secondary btn-sm" style="width: 100%;">
+          <i class="fa-solid fa-power-off"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      
+      <!-- Top Utility bar -->
+      <header class="top-bar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button id="menu-toggle-btn" class="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <h2 id="current-screen-title">Dashboard</h2>
+        </div>
+        
+        <div class="top-bar-actions">
+          <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <span style="font-size: 0.85rem; color: var(--text-muted);" id="live-time-ticker">19:57</span>
+        </div>
+      </header>
+
+      <!-- ================= 2. DASHBOARD SCREEN ================= -->
+      <section id="screen-dashboard" class="app-screen active">
+        <!-- Quick Stats Widgets -->
+        <div class="kpi-grid">
+          <div class="kpi-card glass-panel">
+            <div class="kpi-card-content">
+              <h3>Total Students</h3>
+              <h2 id="kpi-total-students">183</h2>
+            </div>
+            <div class="kpi-card-icon primary">
+              <i class="fa-solid fa-users"></i>
+            </div>
+          </div>
+          
+          <div class="kpi-card glass-panel">
+            <div class="kpi-card-content">
+              <h3>Total Classes</h3>
+              <h2 id="kpi-total-classes">3</h2>
+            </div>
+            <div class="kpi-card-icon secondary">
+              <i class="fa-solid fa-school"></i>
+            </div>
+          </div>
+          
+          <div class="kpi-card glass-panel">
+            <div class="kpi-card-content">
+              <h3>Avg Attendance</h3>
+              <h2 id="kpi-avg-attendance">87.5%</h2>
+            </div>
+            <div class="kpi-card-icon success">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+          </div>
+          
+          <div class="kpi-card glass-panel">
+            <div class="kpi-card-content">
+              <h3>Pass Rate</h3>
+              <h2 id="kpi-pass-rate">94.2%</h2>
+            </div>
+            <div class="kpi-card-icon warning">
+              <i class="fa-solid fa-award"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Widgets Grid -->
+        <div class="dashboard-grid">
+          <!-- Critical Attendance Warnings Panel -->
+          <div class="chart-panel glass-panel">
+            <div class="panel-header">
+              <h3>Critical Attendance Warnings (&lt; 75%)</h3>
+              <div style="font-size: 0.85rem; color: var(--text-muted);" id="dashboard-warning-count">0 students flagged</div>
+            </div>
+            <div class="table-responsive" style="max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+              <table class="custom-table" style="font-size: 0.9rem;">
+                <thead>
+                  <tr>
+                    <th>Roll No</th>
+                    <th>Name</th>
+                    <th>Class</th>
+                    <th>Attendance</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-warnings-tbody">
+                  <!-- Injected dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Alerts Section -->
+          <div class="dashboard-aside">
+            <!-- Quick Actions Panel -->
+            <div class="quick-actions-panel glass-panel">
+              <div class="panel-header">
+                <h3>Quick Actions</h3>
+              </div>
+              <div class="quick-actions-grid">
+                <button class="action-btn" onclick="navigateToScreen('screen-students', true)">
+                  <i class="fa-solid fa-user-plus"></i>
+                  <span>Add Student</span>
+                </button>
+                <button class="action-btn" onclick="navigateToScreen('screen-attendance')">
+                  <i class="fa-solid fa-clipboard-user"></i>
+                  <span>Take Attendance</span>
+                </button>
+                <button class="action-btn" onclick="navigateToScreen('screen-marks')">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>Enter Marks</span>
+                </button>
+                <button class="action-btn" onclick="navigateToScreen('screen-reports')">
+                  <i class="fa-solid fa-file-export"></i>
+                  <span>Export Reports</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- System Logs/Notifications -->
+            <div class="notifications-panel glass-panel">
+              <div class="panel-header">
+                <h3>Notifications & Alerts</h3>
+              </div>
+              <div class="notification-list" id="dashboard-notification-list">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. STUDENT MANAGEMENT SCREEN ================= -->
+      <section id="screen-students" class="app-screen">
+        <div class="filter-bar glass-panel">
+          <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="student-search-input" class="form-control" placeholder="Search by name, ID, email or phone...">
+          </div>
+          
+          <select id="student-filter-class" class="filter-select">
+            <option value="all">All Classes</option>
+          </select>
+          
+          <button id="bulk-delete-btn" class="btn btn-danger btn-sm" style="display: none; height: 48px; border-radius: 10px; margin-right: 8px; background-color: var(--danger); border-color: var(--danger);">
+            <i class="fa-solid fa-trash-can"></i> Delete Selected (<span id="bulk-delete-count">0</span>)
+          </button>
+
+          <button id="add-student-btn" class="btn btn-sm" style="height: 48px; border-radius: 10px;">
+            <i class="fa-solid fa-plus"></i> Add Student
+          </button>
+        </div>
+
+        <div class="glass-panel" style="padding: 20px;">
+          <div class="table-responsive">
+            <table class="custom-table" id="students-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px; text-align: center;"><input type="checkbox" id="student-select-all" style="cursor: pointer; transform: scale(1.2);"></th>
+                  <th>Roll No</th>
+                  <th>Student ID</th>
+                  <th>Name</th>
+                  <th>Class</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="students-table-body">
+                <!-- Injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Paginator -->
+          <div class="pagination-container">
+            <div class="pagination-info" id="student-pagination-info">
+              Showing 1 to 10 of 183 students
+            </div>
+            <div class="pagination-controls">
+              <button class="action-icon-btn" id="student-prev-page" title="Previous Page">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button class="action-icon-btn" id="student-next-page" title="Next Page">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. CLASS MANAGEMENT SCREEN ================= -->
+      <section id="screen-classes" class="app-screen">
+        <div class="panel-header" style="margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Class Registry</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Manage courses, assigned teachers, and view rosters</p>
+          </div>
+          <button id="add-class-btn" class="btn btn-sm" style="height: 48px; border-radius: 10px; width: auto; padding: 0 16px;">
+            <i class="fa-solid fa-plus"></i> Add Class
+          </button>
+        </div>
+
+        <div class="classes-grid" id="classes-grid-container">
+          <!-- Dynamic class cards populated by classes.js -->
+        </div>
+
+        <!-- Class Details Section (visible on selection) -->
+        <div id="class-roster-section" class="glass-panel" style="padding: 24px; display: none;">
+          <div class="panel-header">
+            <div>
+              <h3 id="class-roster-title" style="font-size: 1.4rem;">Class A Roster</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Student List and Academic Summary</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('class-roster-section').style.display='none'">
+              <i class="fa-solid fa-xmark"></i> Close Roster
+            </button>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="custom-table" id="class-roster-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Student ID</th>
+                  <th>Name</th>
+                  <th>Attendance %</th>
+                  <th>Average Grade</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="class-roster-tbody">
+                <!-- Roster entries injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. ATTENDANCE SCREEN ================= -->
+      <section id="screen-attendance" class="app-screen">
+        <div class="attendance-header glass-panel">
+          <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; width: 100%;">
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Select Class</label>
+              <select id="attendance-class-select" class="filter-select" style="width: 100%;">
+                <!-- Dynamic options -->
+              </select>
+            </div>
+            
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Date</label>
+              <input type="date" id="attendance-date-select" class="form-control" style="padding: 11px 14px;">
+            </div>
+            
+            <div style="display: flex; gap: 8px; align-self: flex-end; width: 100%; max-width: 320px; margin-top: auto;">
+              <button class="btn btn-secondary btn-sm" id="btn-quick-present" style="flex: 1; height: 48px;">All Present</button>
+              <button class="btn btn-secondary btn-sm" id="btn-quick-absent" style="flex: 1; height: 48px;">All Absent</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding: 24px; margin-bottom: 30px;">
+          <div class="attendance-table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Attendance History %</th>
+                  <th style="text-align: right;">Attendance Log</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-entry-tbody">
+                <!-- Roster list with toggles -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="modal-footer" style="border: none; margin-top: 20px; padding: 0;">
+            <button class="btn btn-sm" id="save-attendance-btn">
+              <i class="fa-solid fa-floppy-disk"></i> Save Attendance Sheet
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. MARKS SCREEN ================= -->
+      <section id="screen-marks" class="app-screen">
+        <div class="attendance-header glass-panel">
+          <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; width: 100%;">
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Class</label>
+              <select id="marks-class-select" class="filter-select" style="width: 100%;">
+                <!-- Dynamic options -->
+              </select>
+            </div>
+            
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Evaluation Stage</label>
+              <select id="marks-type-select" class="filter-select" style="width: 100%;">
+                <option value="internal">Internal Marks (Max: 40)</option>
+                <option value="semester">Semester Marks (Max: 60)</option>
+              </select>
+            </div>
+            
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Subject Filter</label>
+              <select id="marks-subject-select" class="filter-select" style="width: 100%;">
+                <!-- Dynamic options loaded by app.js -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding: 24px;">
+          <div class="panel-header">
+            <h3>Subject Score Entry Board</h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Auto-saving marks and computing grade points.</span>
+          </div>
+          
+          <div class="table-responsive" style="max-height: 480px; border: 1px solid var(--border-color); border-radius: 12px;">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Subject</th>
+                  <th style="width: 200px;">Marks Entered</th>
+                  <th>Computed Term Grade</th>
+                </tr>
+              </thead>
+              <tbody id="marks-entry-tbody">
+                <!-- Scores injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. REPORTS SCREEN ================= -->
+      <section id="screen-reports" class="app-screen">
+        <div class="report-builder-card glass-panel">
+          <div class="panel-header">
+            <h3>Custom Academic Report Builder</h3>
+          </div>
+          
+          <div class="report-controls-grid">
+            <div>
+              <label class="form-group label" style="margin-bottom: 6px;">Class Selection</label>
+              <select id="report-class-select" class="filter-select" style="width: 100%;">
+                <!-- Dynamic options -->
+              </select>
+            </div>
+
+            <div>
+              <label class="form-group label" style="margin-bottom: 6px;">Report Schema</label>
+              <select id="report-type-select" class="filter-select" style="width: 100%;">
+                <option value="roster">Student Contact Roster</option>
+                <option value="attendance">Class Attendance Summary</option>
+                <option value="marks">Cumulative Marks sheet</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-self: flex-end;">
+              <button class="btn" id="btn-generate-report" style="height: 46px;">
+                <i class="fa-solid fa-gears"></i> Preview
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+            <button class="btn btn-secondary btn-sm" id="btn-export-excel">
+              <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Export to Excel
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-export-pdf">
+              <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> Export to PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding: 24px;">
+          <div class="panel-header">
+            <h3>Report Preview Workspace</h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Simulated dynamic paper layout (A4 formatted).</span>
+          </div>
+          
+          <div class="report-preview-panel" id="report-preview-box">
+            <!-- Simulated printed page -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: #9ca3af;">
+              <i class="fa-solid fa-file-lines" style="font-size: 3.5rem; margin-bottom: 16px;"></i>
+              <p>Configure options and click <strong>Preview</strong> to draw the report sheet.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SUBJECTS MANAGEMENT SCREEN ================= -->
+      <section id="screen-subjects" class="app-screen">
+        <div class="panel-header" style="margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #ffd700, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Subject Registry</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Configure academic subjects and code assignments</p>
+          </div>
+          <button id="add-subject-btn" class="btn btn-sm" style="height: 48px; border-radius: 10px; width: auto; padding: 0 16px; display: none;">
+            <i class="fa-solid fa-plus"></i> Add Subject
+          </button>
+        </div>
+
+        <div class="glass-panel" style="padding: 24px;">
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Subject Code</th>
+                  <th>Subject Name</th>
+                  <th class="subjects-admin-action" style="text-align: right; padding-right: 20px; display: none;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="subjects-tbody">
+                <!-- Dynamic subject rows populated by subjects.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 8. APPROVALS SCREEN ================= -->
+      <section id="screen-approvals" class="app-screen">
+        <div class="panel-header" style="margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #ffd700, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">User Registrations</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Approve or reject pending faculty and administrator registrations</p>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding: 24px;">
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Full Name</th>
+                  <th>Email Address</th>
+                  <th>Requested Role</th>
+                  <th>Status</th>
+                  <th style="text-align: right; padding-right: 20px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="approvals-tbody">
+                <!-- Pending users populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= STUDENT ACADEMIC RESULTS SCREEN ================= -->
+      <section id="screen-student-academic" class="app-screen">
+        <div class="panel-header" style="margin-bottom: 20px;">
+          <div>
+            <h2 id="student-portal-title" style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #ffd700, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student Academic Dossier</h2>
+            <p id="student-portal-subtitle" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">My grades, attendance progress, and details</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 30px;">
+          <!-- Particulars Card -->
+          <div class="glass-panel" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div class="avatar" id="student-card-avatar" style="width: 60px; height: 60px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: linear-gradient(135deg, #ffd700, #b8860b); color: #0a0a0c; font-weight: 800;">ST</div>
+              <div>
+                <h3 id="student-card-name" style="font-size: 1.3rem; font-weight: 800;">Student Name</h3>
+                <p id="student-card-id" style="font-size: 0.85rem; color: var(--text-muted); font-family: monospace;">STU000</p>
+              </div>
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--border-color);">
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px 24px; font-size: 0.9rem;">
+              <span style="color: var(--text-muted);">Roll Number:</span>
+              <strong id="student-card-roll">--</strong>
+              <span style="color: var(--text-muted);">Enrolled Class:</span>
+              <strong id="student-card-class">--</strong>
+              <span style="color: var(--text-muted);">Institutional Email:</span>
+              <strong id="student-card-email">--</strong>
+              <span style="color: var(--text-muted);">Mobile Number:</span>
+              <strong id="student-card-phone">--</strong>
+            </div>
+          </div>
+
+          <!-- Academic Counters -->
+          <div class="glass-panel" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-around; gap: 16px;">
+            <div style="text-align: center;">
+              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px;">My Attendance Rate</span>
+              <h1 id="student-kpi-attendance" style="font-size: 3rem; font-weight: 900; color: var(--primary);">--%</h1>
+              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin-top: 8px;">
+                <div id="student-kpi-attendance-progress" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.6s ease;"></div>
+              </div>
+            </div>
+            <div style="text-align: center;">
+              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px;">My Cumulative GPA</span>
+              <h1 id="student-kpi-gpa" style="font-size: 3rem; font-weight: 900; color: var(--secondary);">-- / 10</h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grade Report -->
+        <div class="glass-panel" style="padding: 24px;">
+          <div class="panel-header" style="margin-bottom: 20px;">
+            <div>
+              <h3>Term Examination Scores</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Breakdown of subject evaluations, internal grades, and term pass status</p>
+            </div>
+            <span id="student-term-status" class="badge" style="font-size: 0.85rem; padding: 6px 12px;">--</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Internal Mark (40)</th>
+                  <th>Semester Exam (60)</th>
+                  <th>Total Grade Score (100)</th>
+                  <th>Points</th>
+                  <th>Calculated Grade</th>
+                </tr>
+              </thead>
+              <tbody id="student-grades-tbody">
+                <!-- Dynamically loaded rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= STUDENT ASSIGNMENTS SCREEN ================= -->
+      <section id="screen-student-homework" class="app-screen">
+        <div class="panel-header" style="margin-bottom: 20px;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #ffd700, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">My Assignments</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">View class homework duties, due dates, and submit your entries</p>
+          </div>
+        </div>
+
+        <div class="classes-grid" id="student-homework-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+          <!-- Dynamically loaded assignment cards -->
+        </div>
+      </section>
+
+      <!-- ================= 10. PROFILE / SETTINGS SCREEN ================= -->
+      <section id="screen-profile" class="app-screen">
+        <div class="profile-card-large glass-panel">
+          <div class="profile-large-header">
+            <div class="profile-large-avatar" id="profile-avatar-char">A</div>
+            <div class="profile-large-meta">
+              <h3 id="profile-name">Administrator</h3>
+              <p id="profile-role-tag">Staff Member</p>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 30px;">
+            <h4 class="profile-section-title">System Account Information</h4>
+            <div class="profile-details-grid">
+              <div class="profile-detail-item">
+                <span class="label">Primary Email:</span>
+                <span class="value" id="profile-email-val">admin@school.edu</span>
+              </div>
+              <div class="profile-detail-item">
+                <span class="label">Contact Phone:</span>
+                <span class="value" id="profile-phone-val">+1 (555) 0199</span>
+              </div>
+              <div class="profile-detail-item">
+                <span class="label">Assigned Duty:</span>
+                <span class="value" id="profile-duty-val">System Administration</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+            <div>
+              <h4 class="profile-section-title">Edit Profile Particulars</h4>
+              <form id="edit-profile-form">
+                <div class="form-group">
+                  <label for="profile-edit-name">Full Name</label>
+                  <input type="text" id="profile-edit-name" class="form-control" style="padding-left: 15px;" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                  <label for="profile-edit-phone">Phone Number</label>
+                  <input type="text" id="profile-edit-phone" class="form-control" style="padding-left: 15px;" placeholder="e.g. +1 (555) 0000" required>
+                </div>
+                <div class="form-group">
+                  <label for="profile-edit-duty">Assigned Duty / Bio</label>
+                  <input type="text" id="profile-edit-duty" class="form-control" style="padding-left: 15px;" placeholder="Customize your duty info" required>
+                </div>
+                <button type="submit" class="btn" style="margin-top: 10px; width: auto; padding: 12px 24px;">
+                  <i class="fa-solid fa-user-pen"></i> Save Profile Details
+                </button>
+              </form>
+            </div>
+
+            <div>
+              <h4 class="profile-section-title">Update Security Password</h4>
+              <form id="change-password-form">
+                <div class="form-group">
+                  <label for="profile-old-pwd">Current Password</label>
+                  <input type="password" id="profile-old-pwd" class="form-control" style="padding-left: 15px;" placeholder="Enter current security password" required autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                  <label for="profile-new-pwd">New Password</label>
+                  <input type="password" id="profile-new-pwd" class="form-control" style="padding-left: 15px;" placeholder="Minimum 6 characters" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                  <label for="profile-confirm-pwd">Confirm New Password</label>
+                  <input type="password" id="profile-confirm-pwd" class="form-control" style="padding-left: 15px;" placeholder="Confirm new password" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn" style="margin-top: 10px; width: auto; padding: 12px 24px;">
+                  <i class="fa-solid fa-shield-halved"></i> Save Security Changes
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS & SLIDE-OUT OVERLAYS ================= -->
+  
+  <!-- Add / Edit Student Modal -->
+  <div id="student-modal" class="modal-overlay">
+    <div class="modal-box glass-panel">
+      <div class="modal-header">
+        <h3 id="student-modal-title">Register New Student</h3>
+        <button class="modal-close" id="student-modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="student-form">
+        <!-- Hidden input for ID when editing -->
+        <input type="hidden" id="student-modal-id">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="student-modal-name">Full Student Name</label>
+            <input type="text" id="student-modal-name" class="form-control" style="padding-left: 15px;" placeholder="e.g. Liam Johnson" required>
+          </div>
+          <div class="form-group">
+            <label for="student-modal-rollno">Roll Number</label>
+            <input type="text" id="student-modal-rollno" class="form-control" style="padding-left: 15px;" placeholder="e.g. A-01" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="student-modal-class">Assigned Class</label>
+            <select id="student-modal-class" class="filter-select" style="width: 100%;">
+              <!-- Dynamic options -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="student-modal-department">Department</label>
+            <input type="text" id="student-modal-department" class="form-control" style="padding-left: 15px;" placeholder="e.g. AI&DS" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="student-modal-semester">Semester</label>
+            <select id="student-modal-semester" class="filter-select" style="width: 100%;">
+              <option value="Semester 1">Semester 1</option>
+              <option value="Semester 2">Semester 2</option>
+              <option value="Semester 3">Semester 3</option>
+              <option value="Semester 4">Semester 4</option>
+              <option value="Semester 5">Semester 5</option>
+              <option value="Semester 6">Semester 6</option>
+              <option value="Semester 7">Semester 7</option>
+              <option value="Semester 8">Semester 8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="student-modal-year">Academic Year</label>
+            <select id="student-modal-year" class="filter-select" style="width: 100%;">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="student-modal-gender">Gender</label>
+            <select id="student-modal-gender" class="filter-select" style="width: 100%;">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="student-modal-dob">Date of Birth</label>
+            <input type="date" id="student-modal-dob" class="form-control" style="padding-left: 15px;" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="student-modal-phone">Phone Number</label>
+            <input type="tel" id="student-modal-phone" class="form-control" style="padding-left: 15px;" placeholder="e.g. 9876543210" required>
+          </div>
+          <div class="form-group">
+            <label for="student-modal-email">Email Address</label>
+            <input type="email" id="student-modal-email" class="form-control" style="padding-left: 15px;" placeholder="e.g. liam.j@school.edu" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="student-modal-parent-name">Parent / Guardian Name</label>
+            <input type="text" id="student-modal-parent-name" class="form-control" style="padding-left: 15px;" placeholder="e.g. Robert Johnson" required>
+          </div>
+          <div class="form-group">
+            <label for="student-modal-parent-phone">Parent Phone Number</label>
+            <input type="tel" id="student-modal-parent-phone" class="form-control" style="padding-left: 15px;" placeholder="e.g. 9876543211" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="student-modal-address">Residential Address</label>
+          <textarea id="student-modal-address" class="form-control" style="padding: 10px 15px; height: 70px; resize: vertical;" placeholder="Enter complete residential address" required></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="student-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-sm" id="student-modal-save">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Student Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-box glass-panel" style="max-width: 400px; text-align: center;">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--danger); margin-bottom: 16px;"></i>
+      <h3 style="font-size: 1.3rem; margin-bottom: 8px;">Delete Record?</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+        Are you sure you want to permanently erase <strong id="delete-student-name">the student</strong>'s profile? This operation is irreversible.
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary btn-sm" id="delete-modal-cancel" style="width: 100px;">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="delete-modal-confirm" style="width: 100px;">Erase</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Class Modal -->
+  <div id="class-modal" class="modal-overlay">
+    <div class="modal-box glass-panel" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 id="class-modal-title">Add Class</h3>
+        <button class="modal-close" id="class-modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="class-form">
+        <input type="hidden" id="class-modal-old-name">
+        
+        <div class="form-group">
+          <label for="class-modal-name">Class Name</label>
+          <input type="text" id="class-modal-name" class="form-control" style="padding-left: 15px;" placeholder="e.g. Class D" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="class-modal-faculty">Assigned Faculty</label>
+          <input type="text" id="class-modal-faculty" class="form-control" style="padding-left: 15px;" placeholder="e.g. Prof. Alan Turing" required>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="class-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-sm" id="class-modal-save">Save Class</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Subject Modal -->
+  <div id="subject-modal" class="modal-overlay">
+    <div class="modal-box glass-panel" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 id="subject-modal-title">Add New Subject</h3>
+        <button class="modal-close" id="subject-modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="subject-form">
+        <div class="form-group">
+          <label for="subject-modal-code">Subject Code</label>
+          <input type="text" id="subject-modal-code" class="form-control" style="padding-left: 15px;" placeholder="e.g. CS202" required>
+        </div>
+        <div class="form-group">
+          <label for="subject-modal-name">Subject Name</label>
+          <input type="text" id="subject-modal-name" class="form-control" style="padding-left: 15px;" placeholder="e.g. Data Structures" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="subject-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-sm" id="subject-modal-save">Save Subject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Profile Drawer Overlay -->
+  <div id="profile-detail-drawer" class="profile-drawer">
+    <div class="drawer-header">
+      <h3 style="font-weight: 700; font-size: 1.1rem; text-transform: uppercase; color: var(--text-muted);">Academic Profile</h3>
+      <button class="drawer-close" id="profile-drawer-close" title="Close Drawer">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+    
+    <div class="profile-avatar-large" id="drawer-avatar">AB</div>
+    <div class="profile-title">
+      <h3 id="drawer-name">Alex Brown</h3>
+      <p id="drawer-id-roll">STU043 | Roll No: B-43</p>
+    </div>
+
+    <div>
+      <h4 class="profile-section-title">Personal Particulars</h4>
+      <div class="profile-details-grid">
+        <div class="profile-detail-item">
+          <span class="label">Course Class:</span>
+          <span class="value" id="drawer-class">Class B</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Department:</span>
+          <span class="value" id="drawer-department">Computer Science</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Semester:</span>
+          <span class="value" id="drawer-semester">Semester 1</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Academic Year:</span>
+          <span class="value" id="drawer-year">1st Year</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Academic Email:</span>
+          <span class="value" id="drawer-email">alex.b@school.edu</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Registered Phone:</span>
+          <span class="value" id="drawer-phone">9988776655</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Date of Birth:</span>
+          <span class="value" id="drawer-dob">2005-08-15</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Gender:</span>
+          <span class="value" id="drawer-gender">Male</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Parent / Guardian:</span>
+          <span class="value" id="drawer-parent-name">Robert Brown</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Parent Phone:</span>
+          <span class="value" id="drawer-parent-phone">9988776654</span>
+        </div>
+      </div>
+      <div class="profile-detail-item" style="margin-top: 12px; width: 100%;">
+        <span class="label" style="display: block; margin-bottom: 4px;">Residential Address:</span>
+        <span class="value" id="drawer-address" style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.4;">123 Street Address, City</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <h4 class="profile-section-title">Academic Achievements</h4>
+      <div class="profile-details-grid">
+        <div class="profile-detail-item">
+          <span class="label">Attendance rate:</span>
+          <span class="value" id="drawer-attendance-rate">--%</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">GPA score:</span>
+          <span class="value" id="drawer-gpa-val">-- / 10.00</span>
+        </div>
+        <div class="profile-detail-item">
+          <span class="label">Pass Status:</span>
+          <span class="value" id="drawer-pass-status">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <h4 class="profile-section-title">Subject Breakdown</h4>
+      <div style="max-height: 220px; overflow-y: auto;">
+        <table class="custom-table" style="font-size: 0.85rem;">
+          <thead>
+            <tr>
+              <th style="padding: 8px;">Subject</th>
+              <th style="padding: 8px;">Int (40)</th>
+              <th style="padding: 8px;">Sem (60)</th>
+              <th style="padding: 8px;">Grade</th>
+            </tr>
+          </thead>
+          <tbody id="drawer-marks-tbody">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Homework Submission Modal -->
+  <div id="homework-submit-modal" class="modal-overlay">
+    <div class="modal-box glass-panel" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 id="homework-modal-title">Submit Homework Assignment</h3>
+        <button class="modal-close" id="homework-modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="homework-submit-form">
+        <input type="hidden" id="homework-modal-id">
+        
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="color: var(--text-muted); font-size: 0.85rem;">Assignment Title:</label>
+          <strong id="homework-modal-lbl-title" style="display: block; margin-top: 4px; font-size: 1rem;">Calculus Problems</strong>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="color: var(--text-muted); font-size: 0.85rem;">Description:</label>
+          <p id="homework-modal-lbl-desc" style="margin-top: 4px; font-size: 0.9rem; line-height: 1.4; color: var(--text-main);">Solve exercises.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="homework-modal-text">Submission Entry / Notes</label>
+          <textarea id="homework-modal-text" class="form-control" rows="6" style="padding: 12px; height: auto; font-family: inherit;" placeholder="Write your submission notes or paste your solution code/repo links here..." required></textarea>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="homework-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-sm" id="homework-modal-save">Submit Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Project Application Scripts -->
+  <script type="module" src="js/app.js"></script>
+  
+  <script>
+    // Tab switching in login card - needs global availability
+    function switchLoginTab(role) {
+      document.getElementById('login-role').value = role;
+      
+      const tabAdmin = document.getElementById('tab-admin');
+      const tabFaculty = document.getElementById('tab-faculty');
+      const tabStudent = document.getElementById('tab-student');
+      
+      tabAdmin.classList.remove('active');
+      tabFaculty.classList.remove('active');
+      if (tabStudent) tabStudent.classList.remove('active');
+      
+      if (role === 'admin') {
+        tabAdmin.classList.add('active');
+      } else if (role === 'faculty') {
+        tabFaculty.classList.add('active');
+      } else if (role === 'student') {
+        if (tabStudent) tabStudent.classList.add('active');
+      }
+    }
+  </script>
+
+</body>
+</html>
