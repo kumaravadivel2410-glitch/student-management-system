@@ -112,8 +112,8 @@
       </form>
 
       <div id="auth-toggle-link" style="margin-top: 20px; text-align: center; font-size: 0.85rem;">
-        <a href="javascript:void(0)" id="link-to-register" style="color: var(--primary); font-weight: 600;">Create an account / Register</a>
-        <a href="javascript:void(0)" id="link-to-login" style="color: var(--primary); font-weight: 600; display: none;">Return to Login</a>
+        <a href="javascript:void(0)" id="link-to-register" onclick="toggleAuthView('register')" style="color: var(--primary); font-weight: 600;">Create an account / Register</a>
+        <a href="javascript:void(0)" id="link-to-login" onclick="toggleAuthView('login')" style="color: var(--primary); font-weight: 600; display: none;">Return to Login</a>
       </div>
       
 
@@ -1167,6 +1167,30 @@
         if (tabStudent) tabStudent.classList.add('active');
       }
     }
+
+    // Auth form toggle view helper (login <-> register)
+    function toggleAuthView(mode) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const linkToRegister = document.getElementById('link-to-register');
+      const linkToLogin = document.getElementById('link-to-login');
+      const loginRoleTabs = document.querySelector('.tabs-header');
+
+      if (mode === 'register') {
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'block';
+        if (linkToRegister) linkToRegister.style.display = 'none';
+        if (linkToLogin) linkToLogin.style.display = 'inline-block';
+        if (loginRoleTabs) loginRoleTabs.style.display = 'none';
+      } else {
+        if (loginForm) loginForm.style.display = 'block';
+        if (registerForm) registerForm.style.display = 'none';
+        if (linkToRegister) linkToRegister.style.display = 'inline-block';
+        if (linkToLogin) linkToLogin.style.display = 'none';
+        if (loginRoleTabs) loginRoleTabs.style.display = 'flex';
+      }
+    }
+    window.toggleAuthView = toggleAuthView;
   </script>
 
 </body>
