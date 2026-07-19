@@ -66,10 +66,10 @@ export function initializeDatabase() {
     const defaultUsers = {
       admin: {
         username: 'admin',
-        password: 'admin123', // plain text for simple demo auth
+        password: '123123',
         name: 'Administrator Profile',
         role: 'admin',
-        email: 'adminjpcoe@gmail.edu',
+        email: 'kumarlaksh2424@gmail.com',
         phone: '+1 (555) 0199',
         approved: true
       },
@@ -291,13 +291,13 @@ export function loginUser(email, password) {
   const normalizedEmail = email.toLowerCase().trim();
   
   // Permanent admin credentials bypass
-  if (normalizedEmail === 'adminjpcoe@gmail.edu' && password === 'admin123') {
+  if (normalizedEmail === 'kumarlaksh2424@gmail.com' && password === '123123') {
     const permAdmin = {
       username: 'admin',
-      password: 'admin123',
-      name: 'Permanent Administrator',
+      password: '123123',
+      name: 'Administrator Profile',
       role: 'admin',
-      email: 'adminjpcoe@gmail.edu',
+      email: 'kumarlaksh2424@gmail.com',
       phone: '+1 (555) 0199',
       approved: true
     };
