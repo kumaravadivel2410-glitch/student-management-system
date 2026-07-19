@@ -1,4 +1,10 @@
-import { fetchStudentsFromAPI, createStudentAPI, updateStudentAPI, deleteStudentAPI } from './api.js';
+import { 
+  fetchStudentsFromAPI, createStudentAPI, updateStudentAPI, deleteStudentAPI,
+  registerUserAPI, loginUserAPI, fetchUsersAPI, approveUserAPI, updateUserAPI, deleteUserAPI,
+  fetchClassesAPI, createClassAPI, deleteClassAPI,
+  fetchAssignmentsAPI, createAssignmentAPI, fetchSubmissionsAPI, createSubmissionAPI,
+  fetchSubjectsAPI, createSubjectAPI
+} from './api.js';
 
 const KEY_STUDENTS = 'sms_students';
 const KEY_USERS = 'sms_users';
@@ -340,6 +346,7 @@ export function registerUser(name, email, password, role) {
 
   users[username] = newUser;
   saveUsers(users);
+  registerUserAPI(newUser).catch(err => console.warn('REST API registration notice:', err));
   addNotification(`New registration request from ${newUser.name} for role ${newUser.role}`, 'info');
   return { success: true };
 }
@@ -350,6 +357,7 @@ export function approveUserRegistration(email) {
   if (user) {
     user.approved = true;
     saveUsers(users);
+    approveUserAPI(user.username).catch(err => console.warn('REST API user approval notice:', err));
     addNotification(`Approved user registration for ${user.name} (${user.role})`, 'success');
     return true;
   }
@@ -364,6 +372,7 @@ export function rejectUserRegistration(email) {
     const userRole = users[key].role;
     delete users[key];
     saveUsers(users);
+    deleteUserAPI(key).catch(err => console.warn('REST API user rejection notice:', err));
     addNotification(`Rejected user registration for ${userName} (${userRole})`, 'warning');
     return true;
   }
@@ -377,6 +386,7 @@ export function updatePassword(username, oldPassword, newPassword) {
     user.password = newPassword;
     users[username.toLowerCase()] = user;
     saveUsers(users);
+    updateUserAPI(username, user).catch(err => console.warn('REST API user update notice:', err));
     
     // update current session
     const currentSession = getActiveSession();
@@ -487,6 +497,7 @@ export function addClass(classData) {
 
   classes.push(newClass);
   saveClasses(classes);
+  createClassAPI(newClass).catch(err => console.warn('REST API add class notice:', err));
   addNotification(`Registered new class ${newClass.name} assigned to ${newClass.faculty}`, 'success');
   return { success: true, class: newClass };
 }
@@ -544,6 +555,7 @@ export function deleteClass(className) {
   if (index !== -1) {
     classes.splice(index, 1);
     saveClasses(classes);
+    deleteClassAPI(className).catch(err => console.warn('REST API delete class notice:', err));
     
     // Cascade to students
     const students = getStudents();
@@ -599,12 +611,13 @@ export function submitAssignment(studentId, assignmentId, text) {
   const newSubmission = {
     studentId,
     assignmentId,
-    submissionText: text.trim(),
+    text: text.trim(),
     submittedAt: new Date().toLocaleDateString()
   };
 
   filtered.push(newSubmission);
   saveSubmissions(filtered);
+  createSubmissionAPI(newSubmission).catch(err => console.warn('REST API submission notice:', err));
   
   const student = getStudents().find(s => s.id === studentId);
   const assignment = getAssignments().find(a => a.id === assignmentId);
@@ -681,6 +694,7 @@ export function addSubject(subjectData) {
   const newSubject = { code, name };
   subjects.push(newSubject);
   saveSubjects(subjects);
+  createSubjectAPI(newSubject).catch(err => console.warn('REST API add subject notice:', err));
   addNotification(`Created new subject: ${name} (${code})`, 'success');
   return { success: true, subject: newSubject };
 }
@@ -721,6 +735,7 @@ export async function syncWithServer() {
 
 export async function initRemoteDatabaseSync() {
   try {
+    // 1. Students
     const apiStudents = await fetchStudentsFromAPI();
     if (apiStudents && Array.isArray(apiStudents)) {
       const normalized = apiStudents.map(s => ({
@@ -728,18 +743,63 @@ export async function initRemoteDatabaseSync() {
         id: s.studentId || s.id || s._id
       }));
       localStorage.setItem(KEY_STUDENTS, JSON.stringify(normalized));
-      
-      window.dispatchEvent(new CustomEvent('reload-students-view'));
-      window.dispatchEvent(new CustomEvent('reload-attendance-view'));
-      window.dispatchEvent(new CustomEvent('reload-marks-view'));
-      window.dispatchEvent(new CustomEvent('reload-approvals-view'));
-      window.dispatchEvent(new CustomEvent('reload-subjects-view'));
-      window.dispatchEvent(new CustomEvent('reload-student-academic-view'));
-      window.dispatchEvent(new CustomEvent('reload-student-homework-view'));
-      window.dispatchEvent(new CustomEvent('classes-updated'));
-      window.dispatchEvent(new CustomEvent('subjects-updated'));
-      window.dispatchEvent(new CustomEvent('database-synced'));
     }
+
+    // 2. Users
+    try {
+      const apiUsers = await fetchUsersAPI();
+      if (apiUsers && Array.isArray(apiUsers)) {
+        const usersMap = {};
+        apiUsers.forEach(u => {
+          usersMap[u.username] = u;
+        });
+        localStorage.setItem(KEY_USERS, JSON.stringify(usersMap));
+      }
+    } catch(err) { console.warn('Users API offline:', err); }
+
+    // 3. Classes
+    try {
+      const apiClasses = await fetchClassesAPI();
+      if (apiClasses && Array.isArray(apiClasses)) {
+        localStorage.setItem(KEY_CLASSES, JSON.stringify(apiClasses));
+      }
+    } catch(err) { console.warn('Classes API offline:', err); }
+
+    // 4. Assignments
+    try {
+      const apiAssignments = await fetchAssignmentsAPI();
+      if (apiAssignments && Array.isArray(apiAssignments)) {
+        localStorage.setItem(KEY_ASSIGNMENTS, JSON.stringify(apiAssignments));
+      }
+    } catch(err) { console.warn('Assignments API offline:', err); }
+
+    // 5. Submissions
+    try {
+      const apiSubmissions = await fetchSubmissionsAPI();
+      if (apiSubmissions && Array.isArray(apiSubmissions)) {
+        localStorage.setItem(KEY_SUBMISSIONS, JSON.stringify(apiSubmissions));
+      }
+    } catch(err) { console.warn('Submissions API offline:', err); }
+
+    // 6. Subjects
+    try {
+      const apiSubjects = await fetchSubjectsAPI();
+      if (apiSubjects && Array.isArray(apiSubjects)) {
+        localStorage.setItem(KEY_SUBJECTS, JSON.stringify(apiSubjects));
+      }
+    } catch(err) { console.warn('Subjects API offline:', err); }
+
+    // Dispatch reload events to UI
+    window.dispatchEvent(new CustomEvent('reload-students-view'));
+    window.dispatchEvent(new CustomEvent('reload-attendance-view'));
+    window.dispatchEvent(new CustomEvent('reload-marks-view'));
+    window.dispatchEvent(new CustomEvent('reload-approvals-view'));
+    window.dispatchEvent(new CustomEvent('reload-subjects-view'));
+    window.dispatchEvent(new CustomEvent('reload-student-academic-view'));
+    window.dispatchEvent(new CustomEvent('reload-student-homework-view'));
+    window.dispatchEvent(new CustomEvent('classes-updated'));
+    window.dispatchEvent(new CustomEvent('subjects-updated'));
+    window.dispatchEvent(new CustomEvent('database-synced'));
   } catch (e) {
     console.warn('API sync fallback: using cached/local store.', e);
   }

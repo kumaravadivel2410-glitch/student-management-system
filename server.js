@@ -4,6 +4,10 @@ require('dotenv').config();
 
 const connectDB = require('./config/db');
 const studentRoutes = require('./routes/studentRoutes');
+const authRoutes = require('./routes/authRoutes');
+const classRoutes = require('./routes/classRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
+const subjectRoutes = require('./routes/subjectRoutes');
 
 const app = express();
 
@@ -16,6 +20,10 @@ app.use(express.json());
 
 // Routes
 app.use('/api', studentRoutes);
+app.use('/api', authRoutes);
+app.use('/api', classRoutes);
+app.use('/api', assignmentRoutes);
+app.use('/api', subjectRoutes);
 
 // Base / Health Check Route
 app.get('/', (req, res) => {
