@@ -3,14 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
-
-// Import REST API Route Modules
 const studentRoutes = require('./routes/studentRoutes');
-const authRoutes = require('./routes/authRoutes');
-const classRoutes = require('./routes/classRoutes');
-const subjectRoutes = require('./routes/subjectRoutes');
-const assignmentRoutes = require('./routes/assignmentRoutes');
-const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 
@@ -21,19 +14,14 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Register API Routes
+// Routes
 app.use('/api', studentRoutes);
-app.use('/api', authRoutes);
-app.use('/api', classRoutes);
-app.use('/api', subjectRoutes);
-app.use('/api', assignmentRoutes);
-app.use('/api', settingsRoutes);
 
 // Base / Health Check Route
 app.get('/', (req, res) => {
   res.json({
     status: 'online',
-    message: 'Full Stack Student Management System REST API & MongoDB Database are running successfully'
+    message: 'Student Management System API is running successfully'
   });
 });
 

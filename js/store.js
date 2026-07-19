@@ -7,7 +7,6 @@ const KEY_CLASSES = 'sms_classes';
 const KEY_ASSIGNMENTS = 'sms_assignments';
 const KEY_SUBMISSIONS = 'sms_submissions';
 const KEY_SUBJECTS = 'sms_subjects';
-const KEY_COLLEGE_SETTINGS = 'sms_college_settings';
 
 
 
@@ -282,11 +281,11 @@ export function saveUsers(users) {
   syncWithServer();
 }
 
-export function loginUser(emailOrUsername, password) {
-  const input = emailOrUsername.toLowerCase().trim();
+export function loginUser(email, password) {
+  const normalizedEmail = email.toLowerCase().trim();
   
   // Permanent admin credentials bypass
-  if ((input === 'adminjpcoe@gmail.edu' || input === 'admin') && password === 'admin123') {
+  if (normalizedEmail === 'adminjpcoe@gmail.edu' && password === 'admin123') {
     const permAdmin = {
       username: 'admin',
       password: 'admin123',
@@ -300,42 +299,8 @@ export function loginUser(emailOrUsername, password) {
     return { status: 'success', user: permAdmin };
   }
 
-  // Permanent faculty credentials bypass
-  if ((input === 's.jenkins@school.edu' || input === 'faculty') && password === 'faculty123') {
-    const permFaculty = {
-      username: 'faculty',
-      password: 'faculty123',
-      name: 'Prof. Sarah Jenkins',
-      role: 'faculty',
-      email: 's.jenkins@school.edu',
-      phone: '+1 (555) 0188',
-      classAssigned: 'Class A',
-      approved: true
-    };
-    sessionStorage.setItem(KEY_SESSION, JSON.stringify(permFaculty));
-    return { status: 'success', user: permFaculty };
-  }
-
-  // Permanent student credentials bypass
-  if ((input === 'liam@school.edu' || input === 'student') && password === 'student123') {
-    const permStudent = {
-      username: 'student',
-      password: 'student123',
-      name: 'Liam Johnson',
-      role: 'student',
-      email: 'liam@school.edu',
-      phone: '+1 (555) 0101',
-      approved: true
-    };
-    sessionStorage.setItem(KEY_SESSION, JSON.stringify(permStudent));
-    return { status: 'success', user: permStudent };
-  }
-
   const users = getUsers();
-  const user = Object.values(users).find(u => 
-    u.email.toLowerCase() === input || (u.username && u.username.toLowerCase() === input)
-  );
-
+  const user = Object.values(users).find(u => u.email.toLowerCase() === normalizedEmail);
   if (user && user.password === password) {
     if (user.approved === false) {
       return { status: 'pending' };
@@ -778,72 +743,4 @@ export async function initRemoteDatabaseSync() {
   } catch (e) {
     console.warn('API sync fallback: using cached/local store.', e);
   }
-}
-
-// Institution & College Branding Settings Accessors
-export function getCollegeSettings() {
-  const defaults = {
-    collegeName: 'J.P. College of Engineering',
-    shortName: 'JPCOE',
-    department: 'Artificial Intelligence and Data Science',
-    portalTitle: 'Student Management Portal',
-    features: {
-      attendance: true,
-      marks: true,
-      homework: true,
-      reports: true,
-      subjects: true
-    }
-  };
-  try {
-    const saved = localStorage.getItem(KEY_COLLEGE_SETTINGS);
-    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
-  } catch (e) {
-    return defaults;
-  }
-}
-
-export function saveCollegeSettings(settings) {
-  localStorage.setItem(KEY_COLLEGE_SETTINGS, JSON.stringify(settings));
-  applyCollegeBranding();
-  addNotification(`Updated college settings for ${settings.collegeName}`, 'success');
-}
-
-export function applyCollegeBranding() {
-  const settings = getCollegeSettings();
-  
-  // 1. Update brand name elements across UI
-  document.querySelectorAll('.brand-name').forEach(el => {
-    el.textContent = settings.collegeName;
-  });
-  
-  // 2. Update subtitle on login card
-  const loginSubtitle = document.querySelector('.login-card p.subtitle');
-  if (loginSubtitle) {
-    loginSubtitle.textContent = `${settings.department} - ${settings.portalTitle}`;
-  }
-
-  // 3. Update Browser Document Title
-  document.title = `${settings.shortName} | ${settings.department}`;
-
-  // 4. Feature Menu Item Visibility Toggles
-  const menuTargetMap = {
-    attendance: 'screen-attendance',
-    marks: 'screen-marks',
-    homework: 'screen-student-homework',
-    reports: 'screen-reports',
-    subjects: 'screen-subjects'
-  };
-
-  if (settings.features) {
-    Object.keys(menuTargetMap).forEach(key => {
-      const targetScreen = menuTargetMap[key];
-      const menuItem = document.querySelector(`.menu-item[data-target="${targetScreen}"]`);
-      if (menuItem) {
-        menuItem.style.display = settings.features[key] ? 'flex' : 'none';
-      }
-    });
-  }
-
-  window.dispatchEvent(new CustomEvent('college-settings-updated', { detail: settings }));
 }

@@ -1,4 +1,4 @@
-import { getStudents, calculateGrade, getSubjects, getCollegeSettings } from './store.js';
+import { getStudents, calculateGrade, getSubjects } from './store.js';
 import { showToast } from './app.js';
 
 // DOM Elements
@@ -168,7 +168,7 @@ function buildReportPreview() {
       <div class="report-preview-header">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
           <div style="text-align: left;">
-            <h2 style="font-size: 1.4rem; font-weight: 800; color: #111827; letter-spacing: -0.5px; margin:0;">${getCollegeSettings().collegeName}</h2>
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: #111827; letter-spacing: -0.5px; margin:0;">J.P. College of Engineering</h2>
             <p style="color:#6b7280; font-size: 0.8rem; text-transform:uppercase; margin: 2px 0 0 0;">Office of the Academic Registrar</p>
           </div>
           <div style="text-align: right; font-size: 0.85rem; color: #4b5563;">
