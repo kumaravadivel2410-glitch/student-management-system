@@ -281,11 +281,11 @@ export function saveUsers(users) {
   syncWithServer();
 }
 
-export function loginUser(email, password) {
-  const normalizedEmail = email.toLowerCase().trim();
+export function loginUser(emailOrUsername, password) {
+  const input = emailOrUsername.toLowerCase().trim();
   
   // Permanent admin credentials bypass
-  if (normalizedEmail === 'adminjpcoe@gmail.edu' && password === 'admin123') {
+  if ((input === 'adminjpcoe@gmail.edu' || input === 'admin') && password === 'admin123') {
     const permAdmin = {
       username: 'admin',
       password: 'admin123',
@@ -299,8 +299,42 @@ export function loginUser(email, password) {
     return { status: 'success', user: permAdmin };
   }
 
+  // Permanent faculty credentials bypass
+  if ((input === 's.jenkins@school.edu' || input === 'faculty') && password === 'faculty123') {
+    const permFaculty = {
+      username: 'faculty',
+      password: 'faculty123',
+      name: 'Prof. Sarah Jenkins',
+      role: 'faculty',
+      email: 's.jenkins@school.edu',
+      phone: '+1 (555) 0188',
+      classAssigned: 'Class A',
+      approved: true
+    };
+    sessionStorage.setItem(KEY_SESSION, JSON.stringify(permFaculty));
+    return { status: 'success', user: permFaculty };
+  }
+
+  // Permanent student credentials bypass
+  if ((input === 'liam@school.edu' || input === 'student') && password === 'student123') {
+    const permStudent = {
+      username: 'student',
+      password: 'student123',
+      name: 'Liam Johnson',
+      role: 'student',
+      email: 'liam@school.edu',
+      phone: '+1 (555) 0101',
+      approved: true
+    };
+    sessionStorage.setItem(KEY_SESSION, JSON.stringify(permStudent));
+    return { status: 'success', user: permStudent };
+  }
+
   const users = getUsers();
-  const user = Object.values(users).find(u => u.email.toLowerCase() === normalizedEmail);
+  const user = Object.values(users).find(u => 
+    u.email.toLowerCase() === input || (u.username && u.username.toLowerCase() === input)
+  );
+
   if (user && user.password === password) {
     if (user.approved === false) {
       return { status: 'pending' };
