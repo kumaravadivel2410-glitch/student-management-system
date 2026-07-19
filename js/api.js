@@ -1,84 +1,59 @@
-// Frontend API client using fetch() to communicate with Express & MongoDB REST API
+// Full Stack Frontend REST API client for MongoDB Atlas Database
 
-// Deployed Render backend REST API endpoint
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
   : 'https://student-management-system-b1la.onrender.com/api';
 
-/**
- * Fetch all students from MongoDB
- * GET /api/students
- */
-export async function fetchStudentsFromAPI() {
+// Helper for HTTP requests
+async function apiRequest(endpoint, method = 'GET', data = null) {
+  const config = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (data) config.body = JSON.stringify(data);
+
   try {
-    const response = await fetch(`${API_BASE_URL}/students`);
-    if (!response.ok) throw new Error(`HTTP error status: ${response.status}`);
-    const result = await response.json();
-    return result.data || [];
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    if (!response.ok) {
+      const errRes = await response.json().catch(() => ({}));
+      throw new Error(errRes.message || `HTTP ${response.status}`);
+    }
+    const json = await response.json();
+    return json.data !== undefined ? json.data : json;
   } catch (error) {
-    console.error('Error fetching students via REST API:', error);
+    console.warn(`API Error [${method} ${endpoint}]:`, error.message);
     throw error;
   }
 }
 
-/**
- * Create a new student record in MongoDB
- * POST /api/students
- */
-export async function createStudentAPI(studentData) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/students`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(studentData)
-    });
-    if (!response.ok) throw new Error(`HTTP error status: ${response.status}`);
-    const result = await response.json();
-    return result.data;
-  } catch (error) {
-    console.error('Error creating student via REST API:', error);
-    throw error;
-  }
-}
+// ---------------- STUDENTS ----------------
+export const fetchStudentsFromAPI = () => apiRequest('/students');
+export const createStudentAPI = (data) => apiRequest('/students', 'POST', data);
+export const updateStudentAPI = (id, data) => apiRequest(`/students/${id}`, 'PUT', data);
+export const deleteStudentAPI = (id) => apiRequest(`/students/${id}`, 'DELETE');
 
-/**
- * Update existing student in MongoDB
- * PUT /api/students/:id
- */
-export async function updateStudentAPI(studentId, updatedData) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(updatedData)
-    });
-    if (!response.ok) throw new Error(`HTTP error status: ${response.status}`);
-    const result = await response.json();
-    return result.data;
-  } catch (error) {
-    console.error(`Error updating student ${studentId} via REST API:`, error);
-    throw error;
-  }
-}
+// ---------------- AUTH & USERS ----------------
+export const loginUserAPI = (emailOrUsername, password) => apiRequest('/auth/login', 'POST', { emailOrUsername, password });
+export const registerUserAPI = (data) => apiRequest('/auth/register', 'POST', data);
+export const fetchUsersFromAPI = () => apiRequest('/users');
+export const approveUserAPI = (id) => apiRequest(`/users/${id}/approve`, 'PUT');
+export const rejectUserAPI = (id) => apiRequest(`/users/${id}`, 'DELETE');
 
-/**
- * Delete a student from MongoDB
- * DELETE /api/students/:id
- */
-export async function deleteStudentAPI(studentId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error(`HTTP error status: ${response.status}`);
-    const result = await response.json();
-    return result.success;
-  } catch (error) {
-    console.error(`Error deleting student ${studentId} via REST API:`, error);
-    throw error;
-  }
-}
+// ---------------- CLASSES ----------------
+export const fetchClassesFromAPI = () => apiRequest('/classes');
+export const createClassAPI = (data) => apiRequest('/classes', 'POST', data);
+export const deleteClassAPI = (id) => apiRequest(`/classes/${id}`, 'DELETE');
+
+// ---------------- SUBJECTS ----------------
+export const fetchSubjectsFromAPI = () => apiRequest('/subjects');
+export const createSubjectAPI = (data) => apiRequest('/subjects', 'POST', data);
+export const deleteSubjectAPI = (id) => apiRequest(`/subjects/${id}`, 'DELETE');
+
+// ---------------- ASSIGNMENTS & SUBMISSIONS ----------------
+export const fetchAssignmentsFromAPI = () => apiRequest('/assignments');
+export const createAssignmentAPI = (data) => apiRequest('/assignments', 'POST', data);
+export const submitHomeworkAPI = (id, data) => apiRequest(`/assignments/${id}/submit`, 'POST', data);
+
+// ---------------- SETTINGS ----------------
+export const fetchSettingsFromAPI = () => apiRequest('/settings');
+export const saveSettingsAPI = (data) => apiRequest('/settings', 'PUT', data);
