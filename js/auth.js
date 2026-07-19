@@ -1,4 +1,4 @@
-import { loginUser, logoutUser, getActiveSession, updatePassword, addNotification, registerUser, getStudentByEmail, updateUserProfile } from './store.js';
+import { loginUser, logoutUser, getActiveSession, updatePassword, addNotification, registerUser, getStudentByEmail, updateUserProfile, getCollegeSettings, saveCollegeSettings, applyCollegeBranding } from './store.js';
 import { showToast, navigateToScreen } from './app.js';
 
 // Dom Elements
@@ -18,6 +18,9 @@ const changePasswordForm = document.getElementById('change-password-form');
 
 // Initialize Auth State on boot
 export function initAuth(onLoginSuccessCallback) {
+  // Apply institution branding on initialization
+  applyCollegeBranding();
+
   const activeSession = getActiveSession();
   
   if (activeSession) {
@@ -305,4 +308,63 @@ export function renderProfilePage(user) {
   if (editName) editName.value = user.name;
   if (editPhone) editPhone.value = user.phone;
   if (editDuty) editDuty.value = currentDuty;
+
+  // Handle College Branding & Features Panel for Administrators
+  const collegePanel = document.getElementById('college-settings-panel');
+  if (collegePanel) {
+    if (user.role === 'admin') {
+      collegePanel.style.display = 'block';
+      const settings = getCollegeSettings();
+      
+      const elCollegeName = document.getElementById('setting-college-name');
+      const elShortName = document.getElementById('setting-short-name');
+      const elDept = document.getElementById('setting-department');
+      const elPortalTitle = document.getElementById('setting-portal-title');
+      
+      if (elCollegeName) elCollegeName.value = settings.collegeName || '';
+      if (elShortName) elShortName.value = settings.shortName || '';
+      if (elDept) elDept.value = settings.department || '';
+      if (elPortalTitle) elPortalTitle.value = settings.portalTitle || '';
+      
+      if (settings.features) {
+        const featAtt = document.getElementById('feature-attendance');
+        const featMarks = document.getElementById('feature-marks');
+        const featHw = document.getElementById('feature-homework');
+        const featRep = document.getElementById('feature-reports');
+        const featSub = document.getElementById('feature-subjects');
+        
+        if (featAtt) featAtt.checked = settings.features.attendance !== false;
+        if (featMarks) featMarks.checked = settings.features.marks !== false;
+        if (featHw) featHw.checked = settings.features.homework !== false;
+        if (featRep) featRep.checked = settings.features.reports !== false;
+        if (featSub) featSub.checked = settings.features.subjects !== false;
+      }
+    } else {
+      collegePanel.style.display = 'none';
+    }
+  }
+
+  // Bind College Settings Form submission
+  const collegeForm = document.getElementById('college-settings-form');
+  if (collegeForm && !collegeForm.dataset.initialized) {
+    collegeForm.dataset.initialized = 'true';
+    collegeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newSettings = {
+        collegeName: document.getElementById('setting-college-name').value.trim(),
+        shortName: document.getElementById('setting-short-name').value.trim(),
+        department: document.getElementById('setting-department').value.trim(),
+        portalTitle: document.getElementById('setting-portal-title').value.trim(),
+        features: {
+          attendance: document.getElementById('feature-attendance').checked,
+          marks: document.getElementById('feature-marks').checked,
+          homework: document.getElementById('feature-homework').checked,
+          reports: document.getElementById('feature-reports').checked,
+          subjects: document.getElementById('feature-subjects').checked
+        }
+      };
+      saveCollegeSettings(newSettings);
+      showToast('College branding & active features updated successfully!', 'success');
+    });
+  }
 }

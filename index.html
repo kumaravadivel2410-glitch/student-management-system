@@ -811,6 +811,69 @@
               </form>
             </div>
           </div>
+
+          <!-- College Branding & Feature Settings Panel (Administrator Control) -->
+          <div id="college-settings-panel" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-color); display: none;">
+            <h4 class="profile-section-title">College Branding & Feature Settings</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+              Customize your institution's name, department, portal title, and active website modules.
+            </p>
+
+            <form id="college-settings-form">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                  <label for="setting-college-name">College Full Name</label>
+                  <input type="text" id="setting-college-name" class="form-control" style="padding-left: 15px;" placeholder="e.g. Harvard University" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="setting-short-name">College Code / Short Name</label>
+                  <input type="text" id="setting-short-name" class="form-control" style="padding-left: 15px;" placeholder="e.g. JPCOE / MIT" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="setting-department">Department / Specialization</label>
+                  <input type="text" id="setting-department" class="form-control" style="padding-left: 15px;" placeholder="e.g. Artificial Intelligence & Data Science" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="setting-portal-title">Portal Subtitle</label>
+                  <input type="text" id="setting-portal-title" class="form-control" style="padding-left: 15px;" placeholder="e.g. Student Management Portal" required>
+                </div>
+              </div>
+
+              <h5 style="font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+                Active Website Modules & Features
+              </h5>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                  <input type="checkbox" id="feature-attendance" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                  <span>Attendance Module</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                  <input type="checkbox" id="feature-marks" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                  <span>Marks & Results</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                  <input type="checkbox" id="feature-homework" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                  <span>Assignments Module</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                  <input type="checkbox" id="feature-reports" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                  <span>Reports Generator</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                  <input type="checkbox" id="feature-subjects" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                  <span>Subjects Registry</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn" style="width: auto; padding: 12px 28px;">
+                <i class="fa-solid fa-sliders"></i> Save Branding & Feature Settings
+              </button>
+            </form>
+          </div>
         </div>
       </section>
 
